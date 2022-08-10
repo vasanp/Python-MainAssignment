@@ -2,7 +2,7 @@ import sys
 import openpyxl
 import json
 from openpyxl import Workbook
-from json import JSONEncoder
+
 
 # Data file location
 TestDataLoc = "/Users/vasanp/PycharmProjects/pythonProject/Python-Assignments/DataSheet.xlsx"
@@ -265,6 +265,12 @@ def show_movie_details(movie_details):
         print(movieDetails[x], ": ", worksheet.cell(row=2, column=x).value)
 
 
+# showing movie names
+def show_movie_name():
+    for sheet in data_obj.worksheets[1:]:
+        print(sheet.title)
+
+
 # Edit movie page
 def edit_movie():
     print("******Welcome Admin*******")
@@ -347,6 +353,32 @@ def user_login_page(user_login_name):
         home()
 
 
+# user rating page
+def user_rating_page(user_selected_movie, user_login_name):
+    print("******Welcome ", user_login_name, " *******")
+    print("Please give rating")
+    user_selected_movie_rating = input(">>>")
+    user_rating(user_selected_movie, user_selected_movie_rating, user_login_name)
+
+
+# user rating logic
+def user_rating(user_selected_movie, user_selected_movie_rating, user_login_name):
+    worksheet = data_obj[user_selected_movie]
+    current_user_count = int(worksheet.cell(row=2, column=14).value) + 1
+    print("user count", current_user_count)
+    current_rating = worksheet.cell(row=2, column=6).value
+    print("current rating", current_rating)
+    new_rating_sum = int(current_rating) + int(user_selected_movie_rating)
+    print("new rating sum", new_rating_sum)
+    new_rating = (int(new_rating_sum)) / (int(current_user_count))
+    print("new rating ", new_rating)
+    worksheet.cell(row=2, column=6).value = new_rating
+    worksheet.cell(row=2, column=14).value = current_user_count
+    data_obj.save('DataSheet.xlsx')
+    show_movie_details(user_selected_movie)
+    user_login_page(user_login_name)
+
+
 # booking page
 def book_movie_ticket_page(user_selected_movie, user_login_name):
     # input for booking movie tickets
@@ -382,7 +414,6 @@ def book_movie_ticket(user_selected_movie, user_selected_movie_timing, selected_
     last_row9 = worksheet.max_row
     for i in range(2, last_row9):
         time_val2 = worksheet.cell(row=i, column=8)
-        print(user_selected_movie_timing)
         if time_val2.value == user_selected_movie_timing:
             new_seats = int(worksheet.cell(row=i, column=13).value) - selected_movie_seats
             if (new_seats > 0):
@@ -402,12 +433,20 @@ def cancel_movie_ticket_page(user_selected_movie, user_login_name):
     print("******Welcome ", user_login_name, " *******")
     show_movie_timings(user_selected_movie)
     print("Select timing")
-    user_selected_movie_timing = input(">>>")
+    user_selected_movie_timing = int(input(">>>"))
+    if user_selected_movie_timing == 1:
+        user_selected_movie_timing = timings[0]
+    elif user_selected_movie_timing == 2:
+        user_selected_movie_timing = timings[1]
+    elif user_selected_movie_timing == 3:
+        user_selected_movie_timing = timings[2]
+    else:
+        print("Requested timing not available")
+        user_login_page(user_login_name)
     print("Select seats")
-    user_selected_movie_seats = input(">>>")
-    print("Tickets cancelled successfull")
+    user_selected_movie_seats = int(input(">>>"))
     cancel_movie_ticket(user_selected_movie, user_selected_movie_timing, user_selected_movie_seats)
-    user_login_page()
+    user_login_page(user_login_name)
 
 
 # cancel tickets logic
@@ -415,44 +454,17 @@ def cancel_movie_ticket(user_selected_movie, user_selected_movie_timing, user_se
     worksheet = data_obj[user_selected_movie]
     last_row9 = worksheet.max_row
     for i in range(2, last_row9):
-        time_val2 = worksheet.cell(row=i, column=8)
-        if time_val2.value == user_selected_movie_timing:
-            new_seats_cancel = int(worksheet.cell(row=i, column=13).value) + int(user_selected_movie_seats)
+        time_val = worksheet.cell(row=i, column=8)
+
+        if time_val.value == user_selected_movie_timing:
+            new_seats_cancel = int(worksheet.cell(row=i, column=13).value) + user_selected_movie_seats
+            print("New seats after cancellation are : ", new_seats_cancel)
             worksheet.cell(row=i, column=13).value = new_seats_cancel
             data_obj.save('DataSheet.xlsx')
+            print("Tickets cancelled successfull")
             break
-
-
-# showing movie names
-def show_movie_name():
-    for sheet in data_obj.worksheets:
-        print(sheet.title)
-
-
-# user rating page
-def user_rating_page(user_selected_movie, user_login_name):
-    print("******Welcome ", user_login_name, " *******")
-    print("Please give rating")
-    user_selected_movie_rating = input(">>>")
-    user_rating(user_selected_movie, user_selected_movie_rating, user_login_name)
-
-
-# user rating logic
-def user_rating(user_selected_movie, user_selected_movie_rating, user_login_name):
-    worksheet = data_obj[user_selected_movie]
-    current_user_count = int(worksheet.cell(row=2, column=14).value) + 1
-    print("user count", current_user_count)
-    current_rating = worksheet.cell(row=2, column=6).value
-    print("current rating", current_rating)
-    new_rating_sum = int(current_rating) + int(user_selected_movie_rating)
-    print("new rating sum", new_rating_sum)
-    new_rating = (int(new_rating_sum)) / (int(current_user_count))
-    print("new rating ", new_rating)
-    worksheet.cell(row=2, column=6).value = new_rating
-    worksheet.cell(row=2, column=14).value = current_user_count
-    data_obj.save('DataSheet.xlsx')
-    show_movie_details(user_selected_movie)
-    user_login_page(user_login_name)
+        else:
+            print("Request to cancel ticket failed")
 
 
 # return to homepage
