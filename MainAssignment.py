@@ -80,7 +80,7 @@ def add_new_user():
 # template for admin role
 class admin:
     admin_username = "admin1"
-    admin_password = "password1"
+    admin_password = "pass1"
 
 
 # creating object of admin class
@@ -175,10 +175,11 @@ def admin_portal():
     elif (selected_admin_functionality == 3):
         delete_movie()
     elif (selected_admin_functionality == 4):
+        print("loggin out")
         home()
     else:
         print("Choose a valid option")
-        home()
+        admin_portal()
 
 
 # Adding New Movie
@@ -193,6 +194,10 @@ def add_new_movie():
     movie_rating = input("Admin rating  :")
     movie_language = input("Language:")
     movie_shows_per_day = input("Number of Shows in a day  :")
+    number_of_shows = int(movie_shows_per_day)
+    if number_of_shows >= 4:
+        print("Maxium 3 shows can be scheduled")
+        admin_portal()
     movie_first_show = input("First Show  :")
     movie_interval_time = input("Interval Time  :")
     movie_gap = input("Gap Between Shows  :")
@@ -341,6 +346,7 @@ def user_login_page(user_login_name):
     print("1. Book Tickets")
     print("2. Cancel Tickets ")
     print("3. Give User Rating  ")
+    print("4. Logout  ")
     user_action = int(input("choose your user action: "))
     if (user_action == 1):
         book_movie_ticket_page(user_selected_movie, user_login_name)
@@ -348,8 +354,8 @@ def user_login_page(user_login_name):
         cancel_movie_ticket_page(user_selected_movie, user_login_name)
     elif (user_action == 3):
         user_rating_page(user_selected_movie, user_login_name)
-    else:
-        print("Choose a valid option")
+    elif (user_action == 4):
+        print("loggin out")
         home()
 
 
@@ -384,7 +390,7 @@ def book_movie_ticket_page(user_selected_movie, user_login_name):
     # input for booking movie tickets
     print("******Welcome ", user_login_name, " *******")
     show_movie_timings(user_selected_movie)
-    print("Select timing")
+    print("Select timing or enter 4 to go back to home screen")
     user_selected_movie_timing = int(input(">>>"))
     if user_selected_movie_timing == 1:
         user_selected_movie_timing = timings[0]
@@ -392,8 +398,8 @@ def book_movie_ticket_page(user_selected_movie, user_login_name):
         user_selected_movie_timing = timings[1]
     elif user_selected_movie_timing == 3:
         user_selected_movie_timing = timings[2]
-    else:
-        print("Requested timing not available")
+    elif user_selected_movie_timing == 4:
+        print("Navigating back to home screen")
         user_login_page(user_login_name)
 
     print("Select seats")
